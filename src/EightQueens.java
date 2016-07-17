@@ -5,8 +5,7 @@ public class EightQueens {
 	
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		
-		EightQueens instance = new EightQueens();
+	    EightQueens instance = new EightQueens();
 		instance.enumerate(0);
 		System.out.println("count: " + instance.count);
 
@@ -45,7 +44,7 @@ public class EightQueens {
 	public void enumerate (int col) {
 		if (QUEENS == col) {
 			count++;
-			printChessPanel();
+			printArray();
 			return;
 		}
 		
@@ -59,7 +58,7 @@ public class EightQueens {
 	}
 	
 	
-	public void printChessPanel() {
+	public void printArray() {
 		for (int i = 0; i < QUEENS; i++) {
 		    System.out.print("  " + chessPanel[i]);
 		}
