@@ -102,20 +102,20 @@ public class BinaryTree {
             return;
         }
         
-        Node node = getRoot();
         Stack<Node> stack = new Stack<Node>();
-        
-        while (!stack.empty() || node != null) {
-            if(node != null) {
-                stack.push(node);
-                node = node.getLeft();   
+        Node curr = getRoot();
+        while (!stack.empty() || curr != null) {
+            if(curr == null) {
+                curr = stack.pop();
+                System.out.print(" " + curr.getValue());
+                curr = curr.getRight();
             } else {
-                node = stack.pop();
-                System.out.print(" " + node.getValue());
-                node = node.right;
-            }   
+                stack.push(curr);
+                curr = curr.getLeft();
+            }
         }
     }
+
     
     public void postOrder(Node node){
         if(node == null) {
@@ -135,9 +135,15 @@ public class BinaryTree {
         Node node = getRoot();
         Stack<Node> stack = new Stack<Node>();
         
-        //while(!stack.empty() && )
-        
-        
+        while(!stack.empty() || node != null) {
+            if(node == null) {
+                
+                
+            } else {
+                
+                
+            }
+        }
     }
     
     public void bfs(){
@@ -171,6 +177,18 @@ public class BinaryTree {
         }
     }
     
+    public int getHeight(){
+        return getHeight(getRoot());
+    }
+    
+    protected int getHeight(Node node) {
+        if(node == null) {
+            return -1;
+        } else {
+            return 1 + Math.max(getHeight(node.getLeft()), getHeight(node.getRight()));
+        }
+    }
+    
     public static BinaryTree buildTree() {
         Node node7 = new Node(7, null, null);
         Node node8 = new Node(8, null, null);
@@ -198,30 +216,232 @@ public class BinaryTree {
         BinaryTree tree = new BinaryTree(node1);
         return tree;
     }
+    
+    public static BinaryTree buildBinarySearchTree() {
+        Node node23 = new Node(23, null, null);
+        Node node81 = new Node(81, null, null);
+        Node node94 = new Node(94, null, null);
+        Node node45 = new Node(45, node23, null);
+        Node node9 = new Node(9, null, null);
+        Node node17 = new Node(17, node9, node45);
+        Node node65 = new Node(65, null, null);
+        Node node87 = new Node(87, node81, node94);
+        Node node78 = new Node(78, node65, node87);
+        Node node53 = new Node(53, node17, node78);   
+        return new BinaryTree(node53);
+    }
+    
+    public Node binarySearch(int val) {
+        return binarySearch(getRoot(), val);
+    }
+    
+    public Node binarySearch(Node node, int val) {
+        if(node == null) {
+            return null;
+        } else if(node.getValue() == val) {
+            return node;
+        } else if (node.getValue() > val) {
+            return binarySearch(node.getLeft(), val);
+        } else {
+            return binarySearch(node.getRight(), val);
+        }
+    }
+    
+    public Node iterativeBinarySearch(int val) {
+        Node curr = getRoot();
+        while(curr != null) {
+            if(curr.getValue() > val) {
+                curr = curr.getLeft();
+            } else if(curr.getValue() < val) {
+                curr = curr.getRight();
+            } else {
+                return curr;
+            }
+            
+        }
+        return null;
+    }
+    
+    public Node bsAdd(int val) {
+        Node newNode = new Node(val, null, null);
+        if(getRoot() == null) {
+            root = newNode;
+            return newNode;
+        }
+
+        Node curr = getRoot();
+        while(curr != null) {
+            if(curr.getValue() > val) {
+                if(curr.getLeft() != null) {
+                    curr = curr.getLeft();
+                } else {
+                    curr.setLeft(newNode);
+                }
+            } else if(curr.getValue() < val) {
+                if(curr.getRight() != null) {
+                    curr = curr.getRight();
+                } else {
+                    curr.setRight(newNode);
+                }
+            } else {
+                return null;
+            }
+        }
+        return newNode;
+    }
+    
+    public Node bsDelete(int val) {
+        Node parent = null;
+        Node curr = getRoot();
+        while(curr != null) {
+            Node next = null;
+            if (val == curr.getValue()) {
+                break;
+            } else if(curr.getValue() > val) {
+                next = curr.getLeft();
+            } else {
+                next = curr.getRight();
+            }
+            
+            if (next != null) {
+                parent = curr;
+            }
+            curr = next;
+        }
+        
+        if(curr == null) {
+            //not found
+            return null;
+        }
+
+        if(curr.getLeft() == null) {
+            if(curr == parent.getLeft()) {
+                parent.setLeft(curr.getRight());
+            } else {
+                parent.setRight(curr.getRight());
+            }
+        } else if(curr.getRight() == null) {
+            if(curr == parent.getLeft()) {
+                parent.setLeft(curr.getLeft());
+            } else {
+                parent.setRight(curr.getLeft());
+            }            
+        } else {
+            Node min = getMin(curr.getRight());
+            bsDelete(min.getValue());
+            curr.setValue(min.getValue());
+        }
+        
+        return curr;
+    }
+    
+    public boolean isBst() {
+        return isBst(getRoot());
+    }
+    
+    public boolean isBst(Node node) {
+        if(node == null) {
+            return true;
+        }
+        
+        return (node.getLeft() == null ? true : node.getValue() > node.getLeft().getValue() && isBst(node.getLeft()))
+               && (node.getRight() == null ? true : node.getValue() < node.getRight().getValue() && isBst(node.getRight()));
+    }
+    
+    public Node getMin(Node root) {
+        Node result = null;
+        while(root != null) {
+            result = root;
+            root = root.getLeft();
+        }
+        return result;
+    }
 
     public static void main(String[] args) {
         // TODO Auto-generated method stub
 
         BinaryTree tree = BinaryTree.buildTree();
         BinaryTree tree2 = BinaryTree.buildTree2();
-        System.out.println( "equals : " + tree.equals(tree2));
+        System.out.println("tree isBst : " + tree.isBst());
+        System.out.println("tree2 isBst : " + tree2.isBst());
 
+//        System.out.println("height of tree : " + tree.getHeight());
+//        System.out.println( "equals : " + tree.equals(tree2));
+        
+        BinaryTree bst = BinaryTree.buildBinarySearchTree();
+        System.out.println("bst isBst : " + bst.isBst());
+        Node node = bst.iterativeBinarySearch(77);
+        System.out.println("node: " + (node != null ? node.getValue() : "not found") );
+        
+        BinaryTree tree3 = new BinaryTree();
+        tree3.bsAdd(53);
+        tree3.bsAdd(78);
+        tree3.bsAdd(65);
+        tree3.bsAdd(17);
+        tree3.bsAdd(87);
+        tree3.bsAdd(9);
+        tree3.bsAdd(81);
+        tree3.bsAdd(45);
+        tree3.bsAdd(23);
+        tree3.bsAdd(94);
+
+        tree3.preOrderIter();
+        System.out.println(" ");
+        tree3.inOrderIter();
+        System.out.println(" ");
+        
+        System.out.println("tree3 is BST: " + tree3.isBst());
+        
+        Node n = tree3.iterativeBinarySearch(9);
+        System.out.println("found value: " + (n != null? "found" : "not found") + ", " + n.getValue());
+        tree3.bsDelete(9);
+        
+        tree3.preOrderIter();
+        System.out.println(" ");
+        tree3.inOrderIter();
+        System.out.println(" ");
+
+        Node n2 = tree3.iterativeBinarySearch(45);
+        System.out.println("found value: " + (n2 != null? "found" : "not found") + ", " + n2.getValue());
+        tree3.bsDelete(45);
+        
+        tree3.preOrderIter();
+        System.out.println(" ");
+        tree3.inOrderIter();
+        System.out.println(" ");
+        
+        
+        Node n3 = tree3.iterativeBinarySearch(78);
+        System.out.println("found value: " + (n3 != null? "found" : "not found") + ", " + n3.getValue());
+        tree3.bsDelete(78);
+        
+        tree3.preOrderIter();
+        System.out.println(" ");
+        tree3.inOrderIter();
+        System.out.println(" ");
+        
+
+        
         tree.preOrder(tree.getRoot());
         System.out.println(" ");
-
+        tree.preOrderIter();
+        System.out.println(" ");
+        
         tree.inOrder(tree.getRoot());
         System.out.println(" ");
+        
+        tree.inOrderIter();
+        System.out.println(" ");
+        
         
         tree.postOrder(tree.getRoot());
         System.out.println(" ");
 
-        tree.preOrderIter();
+        tree.postOrderIter();
         System.out.println(" ");
+
         
         tree.bfs();
-        System.out.println(" ");
-        
-        tree.inOrderIter();
         System.out.println(" ");
         
     }
