@@ -1,4 +1,5 @@
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Queue;
 import java.util.Stack;
 
@@ -356,7 +357,35 @@ public class BinaryTree {
         }
         return result;
     }
+    
+    public LinkedList<Integer> toList() {
+        LinkedList<Integer> result = new LinkedList<Integer>();
+        toList(getRoot(), result);
+        return result;
+    }
+    
+    public void toList(Node node, List<Integer> list) {
+        if(node == null || list == null) {
+            return;
+        }
+        
+        
+        if(node.getLeft() != null) {
+            toList(node.getLeft(), list);
+        }
+        list.add(new Integer(node.getValue()));
+        if(node.getRight() != null) {
+            toList(node.getRight(), list);
+        }
+    }
 
+    public void printList(List<Integer> list) {
+        for (Integer i : list) {
+            System.out.print( " " + i);
+        }
+        System.out.println( " ");
+    }
+    
     public static void main(String[] args) {
         // TODO Auto-generated method stub
 
@@ -372,6 +401,11 @@ public class BinaryTree {
         System.out.println("bst isBst : " + bst.isBst());
         Node node = bst.iterativeBinarySearch(77);
         System.out.println("node: " + (node != null ? node.getValue() : "not found") );
+        
+        System.out.println("before");
+        LinkedList<Integer> list = bst.toList();
+        bst.printList(list);
+        System.out.println("after");
         
         BinaryTree tree3 = new BinaryTree();
         tree3.bsAdd(53);

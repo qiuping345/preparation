@@ -1,6 +1,8 @@
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -11,18 +13,22 @@ import java.util.Set;
 public class Graph {
     
     protected HashMap<String, Vertex> vertices = new HashMap<String, Vertex>();
-    protected boolean hasDirection = true;
+    protected boolean isDirected = true;
     
     public Graph() {
         // empty
     }
     
     public Graph(boolean isDirected) {
-        hasDirection = isDirected;
+        this.isDirected = isDirected;
     }
     
     public boolean empty() {
         return vertices.size() == 0;
+    }
+    
+    public Collection<Vertex> getVertices() {
+        return vertices.values();
     }
     
     public int vertexSize() {
@@ -38,7 +44,7 @@ public class Graph {
             }
         }
         
-        return hasDirection ? size : size / 2;
+        return isDirected ? size : size / 2;
     }
     
     
@@ -53,6 +59,14 @@ public class Graph {
         return false;
     }
     
+    public void removeVertex(Vertex v) {
+        vertices.remove(v);
+        
+        for(Vertex vertex : vertices.values()){
+            vertex.removeEdge(v);
+        }
+    }
+    
     public Vertex getVertex(String label) {
         return vertices.get(label);
     }
@@ -65,10 +79,92 @@ public class Graph {
         Vertex v = getVertex(start.getLabel());
         v.addEdge(end, weight);
         
-        if (!hasDirection) {
+        if (!isDirected) {
             Vertex vEnd = getVertex(end.getLabel());
             vEnd.addEdge(start, weight);
         }
+    }
+    
+    
+    public void removeEdge(Vertex start, Vertex end) {
+        if (start == null || end == null) {
+            return;
+        }
+        
+        Vertex v = getVertex(start.getLabel());
+        v.removeEdge(end);
+        
+        if (!isDirected) {
+            Vertex vEnd = getVertex(end.getLabel());
+            vEnd.removeEdge(start);
+        }
+    }
+    
+    public boolean isConnected(){
+        if(empty()) {
+            return false;
+        }
+        
+        Map.Entry<String, Vertex> entry = vertices.entrySet().iterator().next();
+        Vertex v = entry.getValue();
+        Set<Vertex> visited = new HashSet<Vertex>();
+        DFS(v, visited);
+        return visited.size() == vertexSize();
+    }
+    
+    public void prim() {
+        Set<Vertex> chosenVertices = new HashSet<Vertex>();
+        List<Edge> chosenEdges = new ArrayList<Edge>();
+        Edge e = getShortestEdge();
+        System.out.println("first edge : " + e.toString());
+        chosenEdges.add(e);
+        chosenVertices.add(e.getStart());
+        chosenVertices.add(e.getDestination());
+        
+        while (chosenVertices.size() != getVertices().size()) {
+            Edge edge = getShortestEdge(chosenVertices, chosenEdges);
+            chosenVertices.add(edge.getDestination());
+            chosenEdges.add(edge);
+        }
+        
+        for(Edge edge : chosenEdges) {
+            System.out.println(edge.toString());
+        }
+    }
+    
+    public Edge getShortestEdge(Collection<Vertex> chosenVertex, Collection<Edge> chosenEdges) {
+        if(chosenVertex == null) {
+            return null;
+        }
+        
+        Edge result = null;
+        int minWeight = Integer.MAX_VALUE;
+        for (Vertex v : chosenVertex) {
+            for (Edge e : v.getEdges()) {
+                if(chosenEdges != null 
+                && !chosenEdges.contains(e)
+                && !chosenVertex.contains(e.getDestination())
+                && e.getWeight() < minWeight) {
+                    minWeight = e.getWeight();
+                    result = e;
+                }
+            }
+        }
+        return result;
+    }
+    
+    public Edge getShortestEdge() {
+        Edge result = null;
+        int minWeight = Integer.MAX_VALUE;
+        for (Vertex v : getVertices()) {
+            for (Edge e : v.getEdges()) {
+                if(e.getWeight() < minWeight) {
+                    minWeight = e.getWeight();
+                    result = e;
+                }
+            }
+        }
+        return result;
     }
     
     public void DFS(){
@@ -124,6 +220,11 @@ public class Graph {
         System.out.println(" ");
     }
     
+    public static class PathTuple {
+        public Vertex last;
+        public int weight;
+    }
+    
     public static class Vertex{
         private int value;
         private String label;
@@ -154,15 +255,56 @@ public class Graph {
             return edges;
         }
         
+        public Edge getEdge(Vertex destination) {
+            for(Edge edge : edges) {
+                if (edge.getDestination() == destination) {
+                    return edge;
+                }
+            }
+            return null;
+        } 
+        
         public void addEdge(Vertex destination, int weight) {
             Edge e = edgeWith(destination);
             
             if (null == e) {
-                Edge edge = new Edge(destination, weight);
+                Edge edge = new Edge(this, destination, weight);
                 edges.add(edge);
             } else {
                 e.setWeight(weight);
             }
+        }
+        
+        public Edge removeEdge(Vertex destination) {
+            if(destination == null) {
+                return null;
+            }
+            
+            Iterator<Edge> iter = getEdges().iterator();
+            while (iter.hasNext()) {
+                Edge e = iter.next();
+                if (e.getDestination() == destination) {
+                    iter.remove();
+                    return e;
+                }
+            }
+            return null;
+        }
+        
+        public Edge getShortestEdge() {
+            int currMin = Integer.MAX_VALUE;
+            Edge result = null;
+            for(Edge edge : edges) {
+                if (edge.getWeight() < currMin) {
+                    currMin = edge.getWeight();
+                    result = edge;
+                }
+            }
+            return result;
+        }
+        
+        public void removelAllEdges() {
+            getEdges().clear();
         }
         
         public boolean linkedWith(Vertex destination) {
@@ -200,6 +342,7 @@ public class Graph {
 
     
     public static class Edge {
+        private Vertex start;
         private Vertex destination;
         private int weight;
         
@@ -207,7 +350,8 @@ public class Graph {
             //
         }
 
-        public Edge(Vertex destination, int weight) {
+        public Edge(Vertex start, Vertex destination, int weight) {
+            this.start = start;
             this.destination = destination;
             this.weight = weight;
         }
@@ -220,8 +364,17 @@ public class Graph {
             this.weight = weight;
         }
 
+        public Vertex getStart() {
+            return start;
+        }
+        
+        
         public Vertex getDestination() {
             return destination;
+        }
+        
+        public String toString(){
+            return "start: " + getStart().getLabel() + ", end : " + getDestination().getLabel() + ", weight: " + getWeight();
         }
     }
     
@@ -247,23 +400,33 @@ public class Graph {
         Vertex vi = new Vertex(9, "I");
         graph.addVertex(vi);
 
-        graph.addEdge(va, vb, 0);
-        graph.addEdge(va, vc, 0);
-        graph.addEdge(va, vd, 0);
-        graph.addEdge(vb, vc, 0);
-        graph.addEdge(vb, ve, 0);
-        graph.addEdge(vc, vf, 0);
-        graph.addEdge(vd, vf, 0);
-        graph.addEdge(ve, vg, 0);
-        graph.addEdge(vf, vh, 0);
-        graph.addEdge(vh, vi, 0);
+        
+        graph.addEdge(va, vb, 10);
+        graph.addEdge(va, vc, 14);
+        graph.addEdge(va, vd, 17);
+        graph.addEdge(vb, vc, 13);
+        graph.addEdge(vb, ve, 12);
+        graph.addEdge(vc, vf, 19);
+        graph.addEdge(vd, vc, 13);
+        graph.addEdge(vc, ve, 15);
+        graph.addEdge(vc, vh, 28);
+        graph.addEdge(vd, vf, 18);
+        graph.addEdge(ve, vg, 27);
+        graph.addEdge(vf, vh, 21);
+        graph.addEdge(vh, vi, 22);
+        
+        graph.prim();
 
-        graph.DFS();
-
-        graph.BFS();
-
-
-
+//        graph.DFS();
+//        graph.BFS();
+//        System.out.println("is connected: " + graph.isConnected());
+//        Vertex vj = new Vertex(10, "J");
+//        graph.addVertex(vj);
+//        System.out.println("is connected: " + graph.isConnected());
+        
+        
+        
+        
         
     }
 
