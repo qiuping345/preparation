@@ -84,7 +84,7 @@ public class GraphArrayImpl {
         graph.addEdge(3, 2, 20);
         graph.addEdge(3, 4, 60);
 
-        graph.dijkstra(0);
+        graph.dijkstra(1);
 
     }
 

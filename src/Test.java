@@ -7,8 +7,45 @@ import java.util.Stack;
 import java.awt.Point;
 
 public class Test {
+    
+    public static class Solution {
+        public int CombinationSum4(int[] nums, int target)  {
+            int[] res = new int[target+1];
+            res[0] = 1;
+            for(int cur=1; cur<=target; cur++) {
+                int total = 0;
+                for(int i=0; i<nums.length; i++) {
+                    if(cur - nums[i] >= 0) {
+                        total += res[cur-nums[i]];
+                    }
+                }
+                res[cur] = total;
+            }
+            
+            return res[target];
+        }
+        public int combinationSum3(int[] nums, int target) {
+            if(target == 0) {
+                return 1;
+            }
+            int result = 0;
+            for(int i = 0; i < nums.length ; i++) {
+                if(target - nums[i] >= 0) {
+                    result +=  combinationSum3(nums, target - nums[i]);
+                }
+            }
+            return result;
+        }
+    }
 
     public static void main(String[] args) {
+        int[] arr2 = new int[]{1,2,3};
+        Solution s = new Solution();
+        System.out.println(s.CombinationSum4(arr2, 32));
+        System.out.println(s.combinationSum3(arr2, 32));
+
+        return;
+        /*
         // TODO Auto-generated method stub
         Test inst = new Test();
         
@@ -33,6 +70,7 @@ public class Test {
         System.out.println(inst.reverseString("Do or do not, there is no try."));
         System.out.println("is Palindrome : " + inst.isPalindrome("abdba"));
         System.out.println("is Palindrome : " + inst.isPalindrome("abdbad"));
+        */
 
     }
     

@@ -14,8 +14,7 @@ public class Sorter {
     }
 
     public void quickSort(int[] array) {
-        qsort(array, 0, array.length - 1);
-        //recursiveQuickSort(array, 0, array.length - 1);
+        recursiveQuickSort(array, 0, array.length - 1);
     }
     
     
@@ -51,71 +50,8 @@ public class Sorter {
             recursiveQuickSort(array, idx, endIdx); 
         }
     }
-
     
-   /* 
-    public int partition(int[] array, int left, int right) { 
-        int pivot = array[left]; // taking first element as pivot 
-        while (left <= right) { 
-            //searching number which is greater than pivot, bottom up 
-            while (array[left] < pivot) {
-                left++;
-            } 
-            //searching number which is less than pivot, top down 
-            while (array[right] > pivot) {
-                right--;
-            }
-            // swap the values 
-            if (left <= right) { 
-                swap(array, left, right);
-                //increment left index and decrement right index 
-                left++; 
-                right--; 
-            } 
-            
-        } 
-        return left; 
-    }
-    */
-    
-    void qsort(int[] array, int start, int end)
-    {
-        if(end == start) {
-            return;
-        }
 
-        int beginIdx = start;
-        int endIdx = end;
-        int pivot = array[start];
-
-        while(beginIdx <= endIdx)
-        {
-            //find the first one bigger than pivot from beginIdx
-            while(pivot > array[beginIdx] && beginIdx < end)
-            {
-                beginIdx ++;
-            }
-            //find the first one smaller than pivot from endIdx
-            while(pivot < array[endIdx] && endIdx > start)
-            {
-                endIdx--;
-            }
-
-            //swap
-            if(beginIdx <= endIdx)
-            {
-                swap(array, beginIdx, endIdx);
-            }
-        }
-
-        swap(array, start, beginIdx);
-        if(beginIdx - 1 > start){
-            qsort(array, start, beginIdx - 1);
-        }
-        if(end > beginIdx) {
-            qsort(array, beginIdx, end);
-        }
-    }
     
     public void bubbleSort(int[] array) {
         for(int i = array.length - 1; i >= 0; i--) {
